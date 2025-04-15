@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "./firebase";
-
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -9,6 +8,8 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
+
+import { register } from "../api/user.js";
 
 const AuthContext = createContext();
 
@@ -26,11 +27,19 @@ export function AuthProvider({ children }) {
 
   async function loginWithGoogle() {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    
+    const user = result.user;
+    const token = await user.getIdToken();
+
+    register(token, user.displayName);
   }
 
-  async function signup(email, password) {
-    await createUserWithEmailAndPassword(auth, email, password);
+  async function signup(username, email, password) {
+    console.log("Form Data before sending data to firebase", username, email, password);
+    const credentials = await createUserWithEmailAndPassword(auth, email, password);
+    const token = await credentials.user.getIdToken();
+    register(token, username, password);
   }
 
   async function login(email, password) {
@@ -42,12 +51,12 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{user, loginWithGoogle, signup, login, logout}}>
-        {children}
+    <AuthContext.Provider value={{ user, loginWithGoogle, signup, login, logout }}>
+      {children}
     </AuthContext.Provider>
   )
 }
 
 export function useAuth() {
-    return useContext(AuthContext)
+  return useContext(AuthContext)
 }
