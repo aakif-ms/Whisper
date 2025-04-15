@@ -11,9 +11,12 @@ module.exports.userSignUp = async (req, res) => {
             return res.status(401).json({ message: "token not provided" });
         }
 
-        const decodedToken = await admin.auth().verifyIdToken(token);x
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        let name = req.body.username !== undefined ? req.body.username : decodedToken.name;
+        console.log("Username: ", name);
+        console.log("Decoded Token ", decodedToken);
 
-        const { name, email, uid } = decodedToken;
+        const { email, uid } = decodedToken;
         const signInProvider = decodedToken.firebase.sign_in_provider;
 
         let user = await User.findOne({ email });
@@ -21,10 +24,9 @@ module.exports.userSignUp = async (req, res) => {
             return res.status(200).json({ message: "User already exists", user });
         }
 
-
-        let password = null;
+        let { password } = req.body;
+        console.log("Password: ", password);
         if (signInProvider === 'password') {
-            password = req.body.password;
             password = await bcrypt.hash(password, 10);
             if (!password) {
                 return res.status(400).json({ message: "Password is required for email sign-up" });

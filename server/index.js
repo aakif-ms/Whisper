@@ -1,5 +1,6 @@
 const http = require("http");
 const express = require("express");
+const mongoose = require("mongoose");
 const configureSocket = require("./socket/socketServer.js");
 const cors = require("cors");
 const userRoutes = require("./routes/user.js");
@@ -13,13 +14,14 @@ async function main() {
 }
 
 const app = express();
+app.use(express.json());
 const server = http.createServer(app);
 
 const { io, uidMap } = configureSocket(server);
 
 app.use(
     cors({
-        origin: "http://localhost:5173/"
+        origin: "http://localhost:5173"
     })
 )
 
