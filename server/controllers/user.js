@@ -13,8 +13,6 @@ module.exports.userSignUp = async (req, res) => {
 
         const decodedToken = await admin.auth().verifyIdToken(token);
         let name = req.body.username !== undefined ? req.body.username : decodedToken.name;
-        console.log("Username: ", name);
-        console.log("Decoded Token ", decodedToken);
 
         const { email, uid } = decodedToken;
         const signInProvider = decodedToken.firebase.sign_in_provider;
@@ -25,7 +23,6 @@ module.exports.userSignUp = async (req, res) => {
         }
 
         let { password } = req.body;
-        console.log("Password: ", password);
         if (signInProvider === 'password') {
             password = await bcrypt.hash(password, 10);
             if (!password) {
@@ -57,7 +54,8 @@ module.exports.userLogin = async (req, res) => {
             return res.status(401).json({ message: "token not provided" });
         }
 
-        const { name, email, uid } = await admin.auth().verifyIdToken(token);
+        console.log(decodedToken);
+        const { email } = decodedToken;
         const signInProvider = decodedToken.firebase.sign_in_provider;
 
         const user = await User.findOne({ email });
@@ -71,7 +69,7 @@ module.exports.userLogin = async (req, res) => {
                 return res.status(400).json({ message: 'Password required' });
             }
 
-            const isMatch = await bcrypt.compare(password, user.password);
+            const isMatch = bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return res.status(400).json({ message: 'Invalid credentials' });
             }
