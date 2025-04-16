@@ -9,7 +9,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 
-import { register } from "../api/user.js";
+import { register, loginUser } from "../api/user.js";
 
 const AuthContext = createContext();
 
@@ -43,7 +43,11 @@ export function AuthProvider({ children }) {
   }
 
   async function login(email, password) {
-    await signInWithEmailAndPassword(auth, email, password);
+    console.log("data before logging in: ", email, password);
+    const credentials = await signInWithEmailAndPassword(auth, email, password);
+    const token = await credentials.user.getIdToken();
+    const user = await loginUser(token, password);
+    console.log("Responded Data: ", user);
   }
 
   async function logout() {
