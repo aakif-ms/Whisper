@@ -54,7 +54,6 @@ module.exports.userLogin = async (req, res) => {
             return res.status(401).json({ message: "token not provided" });
         }
 
-        console.log(decodedToken);
         const { email } = decodedToken;
         const signInProvider = decodedToken.firebase.sign_in_provider;
 
@@ -87,6 +86,22 @@ module.exports.userLogin = async (req, res) => {
         return res.status(500).json({ message: "Server Error" });
     }
 };
+
+module.exports.verifyUser = async (req, res) => {
+    const token = req.headers.authorization?.split("Bearer ")[1];
+    if (!token) {
+        return res.status(401).json({ error: "No token provided" })
+    };
+
+    try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    console.log("User successfully verified");
+    console.log(decoded);
+    res.json({ uid: decoded.uid});
+  } catch (err) {
+    res.status(401).json({ error: "Invalid token" });
+  }
+}
 
 module.exports.allRequests = async (req, res) => {
     const { uid } = req.user;
