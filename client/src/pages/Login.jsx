@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 import InputBox from "../components/AuthComponents/InputBox.jsx";
@@ -11,17 +12,22 @@ export default function Login() {
         email: "",
         password: "",
     });
-    const { login, loginWithGoogle } = useAuth();
+    const navigate = useNavigate();
+    const {user, login, loginWithGoogle } = useAuth();
+
+    console.log(user);
 
     async function handleGoogleLogin() {
         console.log("Google Login")
         await loginWithGoogle();
+        navigate("/home");
     }
 
     async function handleSubmit(event) {
         event.preventDefault();
         console.log("Form Data before submitting", formData);
         await login(formData.email, formData.password);
+        navigate("/home");
     }
 
     function handleChange(event) {

@@ -8,7 +8,8 @@ export const loginUser = (token, password = undefined) => API.post("/login",
         headers: {
             Authorization: `Bearer ${token}`
         }
-    })
+    }
+);
 
 export const register = (token, username = undefined, password = undefined) => API.post("/signup",
     { username, password },
@@ -16,4 +17,14 @@ export const register = (token, username = undefined, password = undefined) => A
         headers: {
             Authorization: `Bearer ${token}`
         }
-    });
+    }
+);
+
+export const verify = (token) => API.post("/verifyUser",
+    {},
+    {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+);

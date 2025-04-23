@@ -13,7 +13,9 @@ export default function SignUp() {
     email: "",
     password: "",
   });
-  const { signup, loginWithGoogle } = useAuth();
+  const {user ,signup, loginWithGoogle } = useAuth();
+
+  console.log(!user ? undefined : user.email );
 
   async function handleGoogleLogin() {
     console.log("Google Login")
