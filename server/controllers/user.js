@@ -105,11 +105,22 @@ module.exports.verifyUser = async (req, res) => {
     }
 }
 
-module.exports.allRequests = async (req, res) => {
+module.exports.allIncomingRequests = async (req, res) => {
     const { uid } = req.user;
     try {
         const user = await User.findOne({ uid: uid });
         return res.status(200).json({ friendRequests: user.friendRequest });
+    } catch (err) {
+        console.log("Error sending data", { err });
+        return res.status(500).json({ message: "Error fetching requests" });
+    }
+};
+
+module.exports.allSentRequests = async (req, res) => {
+    const { uid } = req.user;
+    try {
+        const user = await User.findOne({ uid: uid });
+        return res.status(200).json({ sentRequest: user.sentRequest });
     } catch (err) {
         console.log("Error sending data", { err });
         return res.status(500).json({ message: "Error fetching requests" });
@@ -172,38 +183,94 @@ module.exports.sendRequest = async (req, res) => {
     }
 };
 
+module.exports.cancelRequest = async (req, res) => {
+    try {
+        const { uid } = req.user;
+        const { email, choice } = req.body;
 
+        console.log("Accepting controller working")
 
+        const sendingUser = await User.findOne({ uid: uid });
+        const receivingUser = await User.findOne({ email: email });
+
+        if (!receivingUser || !sendingUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await User.updateOne(
+            { uid: uid },
+            {
+                $pull: { sentRequest: { email: receivingUser.email } }
+            }
+        );
+
+        await User.updateOne(
+            { uid: receivingUser.uid },
+            {
+                $pull: { friendRequest: { email: sendingUser.email } }
+            }
+        );
+
+        return res.status(200).json({
+            message: choice ? "Friend Request Accepted" : "Friend Request Declined"
+        });
+    } catch (err) {
+        console.error("Error in accepting/declining request:", err.message);
+        return res.status(500).json({ message: "Server Error" });
+    }
+}
 
 module.exports.acceptRequest = async (req, res) => {
     try {
         const { uid } = req.user;
-        const { friendUid, choice } = req.body;
+        const { email, choice } = req.body;
+
+        console.log("Accepting controller working")
 
         const receivingUser = await User.findOne({ uid: uid });
-        const senderUser = await User.findOne({ uid: friendUid });
+        const sendingUser = await User.findOne({ email: email });
 
-        if (!receivingUser || !senderUser) {
+        if (!receivingUser || !sendingUser) {
             return res.status(404).json({ message: "User not found" });
         }
 
+        const receiverInfo = {
+            name: receivingUser.name,
+            email: receivingUser.email,
+        }
+
+        const senderInfo = {
+            name: sendingUser.name,
+            email: sendingUser.email,
+        };
+
         if (choice) {
-            receivingUser.friends.push(friendUid);
-            senderUser.friends.push(uid);
-        }
+            await User.updateOne(
+                { uid: uid },
+                {
+                    $addToSet: { friends: senderInfo },
+                    $pull: { friendRequest: { email: sendingUser.email } }
+                }
+            );
 
-        const reqIndex = receivingUser.friendRequest.indexOf(friendUid);
-        if (reqIndex > -1) {
-            receivingUser.friendRequest.splice(reqIndex, 1);
-        }
+            await User.updateOne(
+                { uid: sendingUser.uid },
+                {
+                    $addToSet: { friends: receiverInfo },
+                    $pull: { sentRequest: { email: receivingUser.email } }
+                }
+            );
+        } else {
+            await User.updateOne(
+                { uid: uid },
+                { $pull: { friendRequest: { email: sendingUser.email } } }
+            );
 
-        const sentIndex = senderUser.sentRequest.indexOf(uid);
-        if (sentIndex > -1) {
-            senderUser.sentRequest.splice(sentIndex, 1);
+            await User.updateOne(
+                { uid: sendingUser.uid },
+                { $pull: { sentRequest: { email: receivingUser.email } } }
+            );
         }
-
-        await receivingUser.save();
-        await senderUser.save();
 
         return res.status(200).json({
             message: choice ? "Friend Request Accepted" : "Friend Request Declined"
