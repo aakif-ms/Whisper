@@ -1,7 +1,8 @@
 const admin = require("../firebase/firebaseAdmin.js");
 const { Server } = require('socket.io');
+const { setSocketServer, getUidMap } = require("./socketState.js");
 
-const uidMap = new Map();
+const uidMap = getUidMap();
 
 function configureSocket(httpServer) {
     const io = new Server(httpServer, {
@@ -11,12 +12,14 @@ function configureSocket(httpServer) {
         }
     });
 
+    setSocketServer(io);
+
     io.use(async (socket, next) => {
         try {
-            const token = socket.handshake.auth.token?.('Bearer ')[1] || socket.handshake.auth.token;
+            const bearerToken = socket.handshake.auth.token;
+            const token = bearerToken?.startsWith("Bearer ") ? bearerToken.split("Bearer ")[1] : bearerToken;
             const decoded = await admin.auth().verifyIdToken(token);
-            socket.uid = decoded.uid;
-            uidMap.set(decoded.uid, socket.uid);
+            uidMap.set(decoded.uid, socket.id);
             next();
         } catch (e) {
             console.log("Socket Authentication Failed", e.message);
@@ -25,27 +28,27 @@ function configureSocket(httpServer) {
     });
 
     io.on("connection", (socket) => {
-        console.log(`✅ User connected: ${socket.uid}`);
+        console.log(`✅ User connected: ${socket.id}`);
 
         socket.on("friend-request-recieved", ({ receiverUid }) => {
             const receiverSocketId = uidMap.get(receiverUid);
 
             if (receiverSocketId) {
                 io.to(receiverSocketId).emit("friend-request-received", {
-                    from: socket.uid,
+                    from: socket.id,
                 });
-                console.log(`Friend request sent from ${socket.uid} to ${receiverUid}`);
+                console.log(`Friend request sent from ${socket.id} to ${receiverUid}`);
             } else {
                 console.log("Receiver not online");
             }
         });
 
         socket.on("disconnect", () => {
-            console.log(`User has disconnect: ${socket.uid}`);
+            console.log(`User has disconnect: ${socket.id}`);
         })
     })
 
-    return { io, uidMap };
+    return { io };
 }
 
 module.exports = configureSocket;

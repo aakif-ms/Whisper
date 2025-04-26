@@ -1,8 +1,10 @@
 const bcrypt = require('bcrypt');
 const admin = require("../firebase/firebaseAdmin");
-const { uidMap } = require("../index.js");
-
+const { getUidMap, getSocketServer } = require("../socket/socketState.js");
 const User = require('../models/user.js');
+
+const uidMap = getUidMap();
+const io = getSocketServer();
 
 module.exports.userSignUp = async (req, res) => {
     try {
@@ -50,6 +52,8 @@ module.exports.userLogin = async (req, res) => {
         const token = req.headers.authorization?.split('Bearer ')[1];
         const decodedToken = await admin.auth().verifyIdToken(token);
 
+        console.log(uidMap);
+
         if (!token) {
             return res.status(401).json({ message: "token not provided" });
         }
@@ -94,13 +98,11 @@ module.exports.verifyUser = async (req, res) => {
     };
 
     try {
-    const decoded = await admin.auth().verifyIdToken(token);
-    console.log("User successfully verified");
-    console.log(decoded);
-    res.json({ uid: decoded.uid});
-  } catch (err) {
-    res.status(401).json({ error: "Invalid token" });
-  }
+        const decoded = await admin.auth().verifyIdToken(token);
+        res.json({ uid: decoded.uid });
+    } catch (err) {
+        res.status(401).json({ error: "Invalid token" });
+    }
 }
 
 module.exports.allRequests = async (req, res) => {
@@ -116,45 +118,62 @@ module.exports.allRequests = async (req, res) => {
 
 module.exports.getFriends = async (req, res) => {
     const { uid } = req.user;
+    const user = await User.findOne({ uid });
     try {
-        const user = await User.findOne({ uid });
         return user.friends;
     } catch (err) {
         console.log("Error fetching all friends", { err });
-        return res.status(200).json({ friends: user.friends });
     }
 };
 
 module.exports.sendRequest = async (req, res) => {
     try {
         const senderUid = req.user.uid;
-        const { receiverUid } = req.body;
+        const { email } = req.body;
+
+        const receivingUser = await User.findOne({ email: email });
+        const sendingUser = await User.findOne({ uid: senderUid });
+
+        if (!receivingUser) {
+            return res.status(404).json({ message: "User does not exist" });
+        }
+
+        console.log("receiving user: ", receivingUser);
+        console.log("sending user: ", sendingUser);
+
+        const receiver = {
+            name: receivingUser.name,
+            email: receivingUser.email,
+        }
+
+        const sender = {
+            name: sendingUser.name,
+            email: sendingUser.email,
+        };
 
         await User.findOneAndUpdate(
             { uid: senderUid },
-            { $addToSet: { sentRequest: receiverUid } }
+            { $addToSet: { sentRequest: receiver } }
         );
 
-        const receivingUser = await User.find({ uid: receiverUid })
-        if (!receivingUser) {
-            return res.status(500).json({ message: "User does not exist" });
-        }
-        const receiverSocketUid = uidMap.get(receiverUid);
-        if (receiverSocketUid) {
-            io.to(receiverSocketUid).emit("friendRequest", {
-                from: senderUid,
-                message: "You have a new frient request",
-            });
-        }
-        else {
-            receivingUser.friendRequest.push(receiverSocketUid);
-        }
-        res.status(200).json({ message: "Friend Request Sent" });
+        await User.findOneAndUpdate(
+            { uid: receivingUser.uid },
+            { $addToSet: { friendRequest: sender } }
+        );
+
+        console.log("Successfully sent request");
+        return res.status(200).json({ message: "Friend Request Sent" });
+
     } catch (err) {
         console.log("Error sending friend request", err.message);
-        res.status(500).json({ message: "Error sending friend request" });
+        if (!res.headersSent) {
+            return res.status(500).json({ message: "Error sending friend request" });
+        }
     }
 };
+
+
+
 
 module.exports.acceptRequest = async (req, res) => {
     try {

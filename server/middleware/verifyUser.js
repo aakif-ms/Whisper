@@ -9,11 +9,11 @@ module.exports.verifyUser = async (req, res, next) => {
         const verifiedToken = await admin.auth().verifyIdToken(token);
         if (verifiedToken) {
             req.user = verifiedToken;
-            next();
+            return next();
         } else {
-            res.status(401).json({ message: "Invalid Session" })
+            return res.status(401).json({ message: "Invalid Session" })
         }
-    } catch(error) {
-        res.status(401).json({message: "Session Expired"})
+    } catch (error) {
+        return res.status(401).json({ message: "Session Expired" })
     }
 }

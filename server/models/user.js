@@ -15,9 +15,9 @@ const UserSchema = new Schema({
         type: String,
         required: false,
     },
-    friends: [String],
-    friendRequest: [String],
-    sentRequest: [String],
+    friends: [],
+    friendRequest: [],
+    sentRequest: [],
     uid: {
         type: String,
     }
