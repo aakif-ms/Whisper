@@ -15,8 +15,6 @@ export default function Login() {
     const navigate = useNavigate();
     const {user, login, loginWithGoogle } = useAuth();
 
-    console.log(user);
-
     async function handleGoogleLogin() {
         console.log("Google Login")
         await loginWithGoogle();

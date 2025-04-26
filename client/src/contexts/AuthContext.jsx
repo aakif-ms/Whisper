@@ -10,6 +10,7 @@ import {
 } from "firebase/auth";
 
 import { register, loginUser, verify } from "../api/user.js";
+import { connectSocket } from "../api/socket.js";
 
 const AuthContext = createContext();
 
@@ -43,6 +44,8 @@ export function AuthProvider({ children }) {
     const firebaseUser = result.user;
     const token = await firebaseUser.getIdToken();
 
+    localStorage.setItem("token", token);
+
     await register(token, firebaseUser.displayName);
 
     setUser({
@@ -52,12 +55,16 @@ export function AuthProvider({ children }) {
       photoURL: firebaseUser.photoURL,
       token,
     });
+
+    await connectSocket(token);
   }
 
   async function signup(username, email, password) {
     console.log("Form Data before sending data to firebase", username, email, password);
     const credentials = await createUserWithEmailAndPassword(auth, email, password);
     const token = await credentials.user.getIdToken();
+
+    localStorage.setItem("token", token);
 
     await register(token, username, password);
 
@@ -68,12 +75,17 @@ export function AuthProvider({ children }) {
       photoURL: credentials.user.photoURL,
       token,
     });
+
+    await connectSocket(token);
   }
 
   async function login(email, password) {
     const credentials = await signInWithEmailAndPassword(auth, email, password);
     const token = await credentials.user.getIdToken();
     const userData = await loginUser(token, password);
+
+    localStorage.setItem("token", token);
+
     setUser({
       uid: credentials.user.uid,
       email: credentials.user.email,
@@ -82,6 +94,8 @@ export function AuthProvider({ children }) {
       token,
       ...userData,
     });
+
+    await connectSocket(token);
   }
 
   async function verifyUser() {
@@ -100,6 +114,7 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     console.log("logging out");
+    localStorage.removeItem("token");
     await signOut(auth);
     setUser(null);
   }

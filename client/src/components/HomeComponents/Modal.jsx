@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
+
 import Button from "./ModalButton.jsx";
+import NewRequest from "./NewRequest.jsx";
+import IncomingRequest from "./IncomingRequest.jsx";
 
 export default function Modal({ open, onClose }) {
     const [activeTab, setActiveTab] = useState('incoming');
@@ -68,13 +71,20 @@ export default function Modal({ open, onClose }) {
 
                         <div className="mt-4 h-[300px]">
                             {activeTab === 'incoming' && (
-                                <p className="text-center text-gray-600">Incoming friend requests</p>
+                                <div className="flex flex-col gap-5">
+                                    <p className="text-center text-gray-600">Incoming friend requests</p>
+                                    <IncomingRequest/>
+                                </div>
+
                             )}
                             {activeTab === 'sent' && (
                                 <p className="text-center text-gray-600">Sent friend requests</p>
                             )}
                             {activeTab === 'new' && (
-                                <p className="text-center text-gray-600">Send a new friend request here.</p>
+                                <div className="flex flex-col items-center justify-center gap-5">
+                                    <p className="text-center text-gray-600">Send a new friend request here.</p>
+                                    <NewRequest />
+                                </div>
                             )}
                         </div>
                     </motion.div>
