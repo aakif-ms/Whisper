@@ -19,18 +19,12 @@ export default function Protected({ children }) {
         async function verify() {
             try {
                 const verified = await verifyUser();
-                console.log("user uid:", user.uid);
-                console.log("verified uid:", verified.data.uid);
-
                 if (String(verified.data.uid) === String(user.uid)) {
                     setIsVerified(true);
-                    console.log("Verified ✅");
                 } else {
                     setIsVerified(false);
-                    console.log("Verification Failed ❌");
                 }
             } catch (err) {
-                console.error("Verification error:", err);
                 setIsVerified(false);
             } finally {
                 setLoading(false);

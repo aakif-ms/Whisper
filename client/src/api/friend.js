@@ -25,13 +25,57 @@ export const sendRequest = async (email) => {
 export const getIncomingRequests = async () => {
     const token = localStorage.getItem("token");
     try {
-        const response = await API.get("/getRequests", {
+        const response = await API.get("/getIncomingRequests", {
             headers: {
                 Authorization: `Bearer ${token}`
             },
         });
         return response;
     } catch (err) {
-        console.log("Try block didnt run, Error fetching all requests")
+        console.log("Error fetching all requests")
+    }
+}
+
+export const getSentRequests = async () => {
+    const token = localStorage.getItem("token");
+    try {
+        const response = await API.get("/getSentRequests", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        });
+        return response;
+    } catch (err) {
+        console.log("Error fetching all requests")
+    }
+}
+
+export const acceptRequest = async (email, choice) => {
+    const token = localStorage.getItem("token");
+    try {
+        const response = await API.post("/choice", { email, choice }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        return response;
+    } catch (err) {
+        console.log("Error accpeting/declining request");
+    }
+}
+
+export const cancelRequest = async (email, choice) => {
+    const token = localStorage.getItem("token");
+    try {
+        const response = await API.post("/cancelRequest", { email, choice }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        return response;
+    } catch (err) {
+        console.log("Error accpeting/declining request");
     }
 }

@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
-import { getIncomingRequests, acceptRequest } from "../../api/friend";
+import { getSentRequests, cancelRequest } from "../../api/friend";
 
-export default function IncomingRequest() {
+export default function SentRequest() {
     const [response, setResponse] = useState([]);
 
     async function fetchRequests() {
-        const res = await getIncomingRequests();
-        setResponse(res.data.friendRequests);
+        const res = await getSentRequests();
+        setResponse(res.data.sentRequest);
     }
 
     useEffect(() => {
         fetchRequests();
     }, []);
 
-    async function handleChoice(email, choice) {
-        const res = await acceptRequest(email, choice);
+    async function handleChoice(email) {
+        const res = await cancelRequest(email, false);
         console.log(res);
         await fetchRequests();
     }
@@ -31,9 +31,8 @@ export default function IncomingRequest() {
                                 <h3 className="text-gray-500 font-national text-md">{user.email}</h3>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            <h1 className="text-xl cursor-pointer" onClick={() => handleChoice(user.email, true)}>✅</h1>
-                            <h1 className="text-xl cursor-pointer" onClick={() => handleChoice(user.email, false)}>❌</h1>
+                        <div className="flex">
+                            <h1 className="text-xl cursor-pointer" onClick={() => handleChoice(user.email)}>❌</h1>
                         </div>
                     </div>
                 ))}

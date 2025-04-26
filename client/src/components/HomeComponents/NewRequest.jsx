@@ -8,6 +8,7 @@ export default function NewRequest() {
     async function handleSubmit(event) {
         event.preventDefault();
         const response = await sendRequest(email);
+        setEmail("");
         console.log(response);
     }
 
