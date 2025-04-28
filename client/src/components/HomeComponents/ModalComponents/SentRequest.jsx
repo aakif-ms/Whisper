@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getSentRequests, cancelRequest } from "../../api/friend";
+import { getSentRequests, cancelRequest } from "../../../api/friend";
 
 export default function SentRequest() {
     const [response, setResponse] = useState([]);

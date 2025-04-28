@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "http://localhost:3000/user" });
+const userApi = axios.create({ baseURL: "http://localhost:3000/user" });
+const friendApi = axios.create({ baseURL: "http://localhost:3000/chat" });
 
 export const sendRequest = async (email) => {
     const token = localStorage.getItem("token");
@@ -11,7 +12,7 @@ export const sendRequest = async (email) => {
     }
 
     try {
-        const response = await API.post("/sendRequest", { email }, {
+        const response = await userApi.post("/sendRequest", { email }, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -25,7 +26,7 @@ export const sendRequest = async (email) => {
 export const getIncomingRequests = async () => {
     const token = localStorage.getItem("token");
     try {
-        const response = await API.get("/getIncomingRequests", {
+        const response = await userApi.get("/getIncomingRequests", {
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -39,7 +40,7 @@ export const getIncomingRequests = async () => {
 export const getSentRequests = async () => {
     const token = localStorage.getItem("token");
     try {
-        const response = await API.get("/getSentRequests", {
+        const response = await userApi.get("/getSentRequests", {
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -53,7 +54,7 @@ export const getSentRequests = async () => {
 export const acceptRequest = async (email, choice) => {
     const token = localStorage.getItem("token");
     try {
-        const response = await API.post("/choice", { email, choice }, {
+        const response = await userApi.post("/choice", { email, choice }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -68,7 +69,7 @@ export const acceptRequest = async (email, choice) => {
 export const cancelRequest = async (email, choice) => {
     const token = localStorage.getItem("token");
     try {
-        const response = await API.post("/cancelRequest", { email, choice }, {
+        const response = await userApi.post("/cancelRequest", { email, choice }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -77,5 +78,20 @@ export const cancelRequest = async (email, choice) => {
         return response;
     } catch (err) {
         console.log("Error accpeting/declining request");
+    }
+}
+
+export const getFriends = async () => {
+    const token = localStorage.getItem("token");
+    try {
+        const response = await friendApi.get("/getFriends", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        console.log("fetched succesfully");
+        return response;
+    } catch (err) {
+        console.log("Error fetching all friends");
     }
 }

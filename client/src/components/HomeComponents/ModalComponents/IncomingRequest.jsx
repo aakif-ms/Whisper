@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getIncomingRequests, acceptRequest } from "../../api/friend";
+import { getIncomingRequests, acceptRequest } from "../../../api/friend";
 
 export default function IncomingRequest() {
     const [response, setResponse] = useState([]);

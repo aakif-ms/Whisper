@@ -9,12 +9,16 @@ export default {
       fontFamily: {
         national: ["National Park", "sans-serif"],
         poetsen: ["Poetsen One", "sans-serif"]
-      }
+      },
+      colors: {
+        lightPurple: '#8d96ee',
+        lightPink: '#fff7fe'
+      },
     },
     screens: {
       md: "850px",
       lg: "1500px",
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
 }

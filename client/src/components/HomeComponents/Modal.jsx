@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
-import Button from "./ModalButton.jsx";
-import NewRequest from "./NewRequest.jsx";
-import IncomingRequest from "./IncomingRequest.jsx";
-import SentRequest from "./SentRequest.jsx";
+import Button from "./ModalComponents/ModalButton.jsx";
+import NewRequest from "./ModalComponents/NewRequest.jsx";
+import IncomingRequest from "./ModalComponents/IncomingRequest.jsx";
+import SentRequest from "./ModalComponents/SentRequest.jsx";
 
 export default function Modal({ open, onClose }) {
     const [activeTab, setActiveTab] = useState('incoming');
