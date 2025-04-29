@@ -16,7 +16,7 @@ export default function Sidebar({ handleModal, handleLogOut, setSelectedUser }) 
 
 
     return (
-        <aside className="h-screen overflow-x-hidden w-20 lg:w-72 border-r-2 border-gray-700 bg-lightPurple flex flex-col items-center">This is sidebar
+        <aside className="h-screen overflow-x-hidden w-20 lg:w-72 border-r-2 border-gray-700 bg-lightPurple flex flex-col items-center">
             <button className="btn btn-error px-4 py-2 rounded-xl" onClick={handleModal}>Open Modal</button>
             <button className="btn btn-success px-4 py-2 rounded-xl" onClick={handleLogOut}>Log Out</button>
 

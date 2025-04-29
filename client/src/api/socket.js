@@ -13,7 +13,12 @@ export async function connectSocket(token) {
 
     socket.on("connect", () => {
         console.log("Socket connected", socket.id);
-    })
+    });
+
+    socket.on("connect_error", (err) => {
+        console.error("Socket connection error:", err.message);
+        reject(err);
+    });
 }
 
 export function getSocket() {

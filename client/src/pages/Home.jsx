@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "../components/HomeComponents/Modal";
 import Sidebar from "../components/HomeComponents/Sidebar";
 import ChatWindow from "../components/HomeComponents/ChatWindow";
+import NoChatSelected from "../components/HomeComponents/NoChatSelected";
 
 export default function Home() {
     const [open, setOpen] = useState(false);
@@ -26,7 +27,7 @@ export default function Home() {
             <Modal open={open} onClose={() => setOpen(false)}></Modal>
             <div className="flex items-center justify-center w-full h-screen">
                 <Sidebar handleLogOut={handleLogOut} handleModal={handleModal} setSelectedUser={setSelectedUser} />
-                <ChatWindow selectedUser={selectedUser} />
+                {selectedUser ? <ChatWindow selectedUser={selectedUser} setSelectedUser={setSelectedUser}/> : <NoChatSelected/>}
             </div>
         </>
     )
