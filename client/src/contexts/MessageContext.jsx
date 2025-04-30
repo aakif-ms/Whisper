@@ -12,14 +12,23 @@ export function MessageProvider({ children }) {
     const token = localStorage.getItem("token");
 
     function sendMessage(content, to) {
-        socket.emit("sendMessage", { content, to });
+        const socket = getSocket();
 
-        API.post(`/sendMessage/${to}`, { content }, {
+        if (!socket || !socket.connected) {
+            console.error("Socket is not connected.");
+            return;
+        }
+
+        socket.emit("sendMessage", { content, to });
+        console.log("Message sent successfully");
+
+        return API.post(`/sendMessage/${to}`, { content }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
-        })
+        });
     }
+
 
     function listenNewMessage() {
         socket.on("newMessage", (message) => {
@@ -48,5 +57,5 @@ export function MessageProvider({ children }) {
 }
 
 export function useMsg() {
-    return useContext(MessageProvider);
+    return useContext(MessageContext);
 }

@@ -1,14 +1,13 @@
 import SendBox from "./ChatComponents/SendBox";
-import ChatHeader from "./ChatHeader";
+import ChatHeader from "./ChatComponents/ChatHeader";
+import ChatArea from "./ChatComponents/ChatArea";
 
 export default function ChatWindow({ selectedUser, setSelectedUser }) {
     return (
         <div className="bg-lightPink w-full h-screen flex flex-col">
             <ChatHeader selectedUser={selectedUser} setSelectedUser={setSelectedUser} />
-            <div className="flex-grow">
-                <h1 className="text-black">This is the chat screen</h1>
-            </div>
-            <SendBox />
+            <ChatArea />
+            <SendBox to={selectedUser}/>
         </div>
     );
 }

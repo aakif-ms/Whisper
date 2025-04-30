@@ -21,7 +21,7 @@ export default function Sidebar({ handleModal, handleLogOut, setSelectedUser }) 
             <button className="btn btn-success px-4 py-2 rounded-xl" onClick={handleLogOut}>Log Out</button>
 
             {response.map((friend, index) => (
-                <div key={index} className="text-white mt-2 cursor-pointer" onClick={() => setSelectedUser(friend.name)}>
+                <div key={index} className="text-white mt-2 cursor-pointer" onClick={() => setSelectedUser(friend)}>
                     {friend.name}
                 </div>
             ))}
