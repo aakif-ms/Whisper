@@ -127,16 +127,6 @@ module.exports.allSentRequests = async (req, res) => {
     }
 };
 
-module.exports.getFriends = async (req, res) => {
-    const { uid } = req.user;
-    const user = await User.findOne({ uid });
-    try {
-        return user.friends;
-    } catch (err) {
-        console.log("Error fetching all friends", { err });
-    }
-};
-
 module.exports.sendRequest = async (req, res) => {
     try {
         const senderUid = req.user.uid;
@@ -149,17 +139,16 @@ module.exports.sendRequest = async (req, res) => {
             return res.status(404).json({ message: "User does not exist" });
         }
 
-        console.log("receiving user: ", receivingUser);
-        console.log("sending user: ", sendingUser);
-
         const receiver = {
             name: receivingUser.name,
             email: receivingUser.email,
+            uid: receivingUser.uid,
         }
 
         const sender = {
             name: sendingUser.name,
             email: sendingUser.email,
+            uid: sendingUser.uid,
         };
 
         await User.findOneAndUpdate(
@@ -237,11 +226,13 @@ module.exports.acceptRequest = async (req, res) => {
         const receiverInfo = {
             name: receivingUser.name,
             email: receivingUser.email,
+            uid: receivingUser.uid,
         }
 
         const senderInfo = {
             name: sendingUser.name,
             email: sendingUser.email,
+            uid: receivingUser.uid,
         };
 
         if (choice) {

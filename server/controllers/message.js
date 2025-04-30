@@ -1,5 +1,16 @@
 const Message = require("../models/message.js")
-const { uidMap, io } = require("../index.js");
+const User = require("../models/user.js");
+
+module.exports.getFriends = async (req, res) => {
+    const { uid } = req.user;
+    const user = await User.findOne({ uid });
+    try {
+        console.log("sent all friends from backend");
+        return res.json(user.friends);
+    } catch (err) {
+        console.log("Error fetching all friends", { err });
+    }
+};
 
 module.exports.sendMessage = async (req, res) => {
     try {
@@ -13,12 +24,10 @@ module.exports.sendMessage = async (req, res) => {
             receiverId: receiverId
         });
 
-        await message.save();
+        console.log(message);
 
-        const receiverSocketUid = uidMap[receiverId];
-        io.to(receiverSocketUid).emit("newMessage", message);
-
-        res.status(2001).json({ message });
+        // await message.save();
+        res.status(201).json({ message });
     } catch (err) {
         res.status(500).json({ message: "Error Sending Message", err });
     }

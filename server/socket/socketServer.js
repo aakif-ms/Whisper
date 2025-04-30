@@ -30,21 +30,36 @@ function configureSocket(httpServer) {
     io.on("connection", (socket) => {
         console.log(`✅ User connected: ${socket.id}`);
 
-        socket.on("friend-request-recieved", ({ receiverUid }) => {
-            const receiverSocketId = uidMap.get(receiverUid);
-
-            if (receiverSocketId) {
-                io.to(receiverSocketId).emit("friend-request-received", {
-                    from: socket.id,
-                });
-                console.log(`Friend request sent from ${socket.id} to ${receiverUid}`);
-            } else {
-                console.log("Receiver not online");
+        socket.on("sendMessage", async ({ content, to }) => {
+            const senderUid = [...uidMap.entries()].find(([uid, id]) => id === socket.id)?.[0];
+            console.log("New Message, sending from socketServer");
+            if (!senderUid) {
+                console.log("Sender UID not found for socket ID:", socket.id);
+                return;
             }
-        });
+
+            try {
+                const message = {
+                    content,
+                    senderId: senderUid,
+                    receiverId: to,
+                };
+
+                const receiverSocketUid = uidMap.get(to);
+                if (receiverSocketUid) {
+                    io.to("newMessage", message);
+                }
+            } catch (err) {
+                console.log("error sending message: ", err);
+                socket.emit("error", { message: "Message not sent, error" });
+            }
+        })
 
         socket.on("disconnect", () => {
             console.log(`User has disconnect: ${socket.id}`);
+            if (socket.uid) {
+                uidMap.delete(socket.uid);
+            }
         })
     })
 
