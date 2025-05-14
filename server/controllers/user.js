@@ -8,62 +8,94 @@ const io = getSocketServer();
 
 module.exports.userSignUp = async (req, res) => {
     try {
-        const token = req.headers.authorization?.split('Bearer ')[1];
-        if (!token) {
-            return res.status(401).json({ message: "token not provided" });
+        const token = req.headers.authorization?.split("Bearer ")[1];
+        if (!token || token === "undefined") {
+            return res.status(401).json({ message: "Token not provided" });
         }
 
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        let name = req.body.username !== undefined ? req.body.username : decodedToken.name;
+        let decoded;
+        try {
+            decoded = await admin.auth().verifyIdToken(token);
+        } catch (err) {
+            console.error("Token verification failed:", err.message);
+            return res.status(401).json({ message: "Invalid token" });
+        }
 
-        const { email, uid } = decodedToken;
-        const signInProvider = decodedToken.firebase.sign_in_provider;
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "Lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: "/"
+        });
 
+        const { email, uid, firebase: { sign_in_provider } = {} } = decoded;
+        const name = req.body.username || decoded.name || "";
         let user = await User.findOne({ email });
+
         if (user) {
-            return res.status(200).json({ message: "User already exists", user });
+            return res.status(200).json({
+                message: "User already exists",
+                user: {
+                    name: user.name,
+                    email: user.email,
+                    uid: user.uid
+                }
+            });
         }
 
-        let { password } = req.body;
-        if (signInProvider === 'password') {
-            password = await bcrypt.hash(password, 10);
+        let password = req.body.password;
+        if (sign_in_provider === "password") {
             if (!password) {
                 return res.status(400).json({ message: "Password is required for email sign-up" });
             }
+            password = await bcrypt.hash(password, 10);
         }
 
-        user = new User({
-            name,
-            email,
-            password,
-            uid
-        });
-
+        user = new User({ name, email, password, uid });
         await user.save();
-        return res.status(201).json({ message: "User created successfully" });
-    } catch (error) {
-        console.log("Error signing in: ", error);
+
+        return res.status(201).json({
+            message: "User created successfully",
+            user: {
+                name: user.name,
+                email: user.email,
+                uid: user.uid
+            }
+        });
+    } catch (err) {
+        console.error("Signup error:", err.message);
         return res.status(500).json({ message: "Server Error" });
     }
 };
 
+
 module.exports.userLogin = async (req, res) => {
     try {
         const token = req.headers.authorization?.split('Bearer ')[1];
-        const decodedToken = await admin.auth().verifyIdToken(token);
-
-        console.log(uidMap);
+        console.log("Received token in login controller: ", !!token);
 
         if (!token) {
-            return res.status(401).json({ message: "token not provided" });
+            return res.status(401).json({ message: "Token not provided" });
         }
+
+        const decodedToken = await admin.auth().verifyIdToken(token);
+
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "Lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: "/"
+        });
 
         const { email } = decodedToken;
         const signInProvider = decodedToken.firebase.sign_in_provider;
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: "Invalid Credentials" })
+            return res.status(400).json({ message: "Invalid Credentials" });
         }
 
         if (signInProvider === 'password') {
@@ -72,7 +104,7 @@ module.exports.userLogin = async (req, res) => {
                 return res.status(400).json({ message: 'Password required' });
             }
 
-            const isMatch = bcrypt.compare(password, user.password);
+            const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return res.status(400).json({ message: 'Invalid credentials' });
             }
@@ -87,23 +119,30 @@ module.exports.userLogin = async (req, res) => {
             message: "User logged in successfully"
         });
     } catch (error) {
+        console.error("Login error:", error.message);
         return res.status(500).json({ message: "Server Error" });
     }
 };
 
+module.exports.logoutUser = async (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: "Lax",
+        path: "/"
+    });
+    console.log("Logged out user");
+    res.json({message: "User logged out successfully"});
+}
+
 module.exports.verifyUser = async (req, res) => {
-    const token = req.headers.authorization?.split("Bearer ")[1];
-    if (!token) {
-        return res.status(401).json({ error: "No token provided" })
+    const userData = {
+        uid: req.user.uid,
+        email: req.user.email
     };
 
-    try {
-        const decoded = await admin.auth().verifyIdToken(token);
-        res.json({ uid: decoded.uid });
-    } catch (err) {
-        res.status(401).json({ error: "Invalid token" });
-    }
-}
+    res.json(userData);
+};
 
 module.exports.allIncomingRequests = async (req, res) => {
     const { uid } = req.user;
@@ -232,7 +271,7 @@ module.exports.acceptRequest = async (req, res) => {
         const senderInfo = {
             name: sendingUser.name,
             email: sendingUser.email,
-            uid: receivingUser.uid,
+            uid: sendingUser.uid,
         };
 
         if (choice) {

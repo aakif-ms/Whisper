@@ -2,6 +2,7 @@ const http = require("http");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cookies = require("cookie-parser");
 const userRoutes = require("./routes/user.js");
 const messageRoutes = require("./routes/message.js");
 const configureSocket = require("./socket/socketServer.js");
@@ -15,17 +16,19 @@ async function main() {
 }
 
 const app = express();
+app.use(cookies());
 app.use(express.json());
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+    })
+)
 const server = http.createServer(app);
 
 const { io } = configureSocket(server);
 setSocketServer(io);
 
-app.use(
-    cors({
-        origin: "http://localhost:5173"
-    })
-)
 
 app.use("/user", userRoutes);
 app.use("/chat", messageRoutes);

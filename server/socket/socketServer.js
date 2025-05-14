@@ -16,23 +16,38 @@ function configureSocket(httpServer) {
 
     io.use(async (socket, next) => {
         try {
-            const bearerToken = socket.handshake.auth.token;
-            const token = bearerToken?.startsWith("Bearer ") ? bearerToken.split("Bearer ")[1] : bearerToken;
-            const decoded = await admin.auth().verifyIdToken(token);
-            uidMap.set(decoded.uid, socket.id);
-            next();
-        } catch (e) {
-            console.log("Socket Authentication Failed", e.message);
-            next();
+            const token = socket.handshake.auth?.token;
+
+            if (!token || token === 'undefined') {
+                console.log("❌ No token provided in socket handshake auth");
+                return next(new Error("Authentication failed"));
+            }
+
+            try {
+                const decoded = await admin.auth().verifyIdToken(token);
+                uidMap.set(decoded.uid, socket.id);
+                socket.uid = decoded.uid;
+                console.log("✅ Socket authenticated for UID:", decoded.uid);
+                next();
+            } catch (err) {
+                console.error("❌ Token verification failed:", err.message);
+                next(new Error("Authentication failed"));
+            }
+
+        } catch (err) {
+            console.error("❌ Unexpected error in socket auth middleware:", err.message);
+            next(new Error("Authentication failed"));
         }
     });
 
+
+
     io.on("connection", (socket) => {
-        console.log(`✅ User connected: ${socket.id}`);
+        console.log("Current UID map:", uidMap);
 
         socket.on("sendMessage", async ({ content, to }) => {
-            const senderUid = [...uidMap.entries()].find(([uid, id]) => id === socket.id)?.[0];
-            console.log("New Message, sending from socketServer");
+            const senderUid = socket.uid;
+
             if (!senderUid) {
                 console.log("Sender UID not found for socket ID:", socket.id);
                 return;
@@ -45,23 +60,25 @@ function configureSocket(httpServer) {
                     receiverId: to,
                 };
 
-                const receiverSocketUid = uidMap.get(to);
-                if (receiverSocketUid) {
-                    io.to("newMessage", message);
+                const receiverSocketId = uidMap.get(to);
+                if (receiverSocketId) {
+                    io.to(receiverSocketId).emit("newMessage", message);
                 }
+
+                socket.emit("newMessage", message);
             } catch (err) {
-                console.log("error sending message: ", err);
-                socket.emit("error", { message: "Message not sent, error" });
+                console.log("Error sending message via socket:", err);
+                socket.emit("error", { message: "Message not sent due to error" });
             }
-        })
+        });
 
         socket.on("disconnect", () => {
-            console.log(`User has disconnect: ${socket.id}`);
+            console.log(`User disconnected: ${socket.id}`);
             if (socket.uid) {
                 uidMap.delete(socket.uid);
             }
-        })
-    })
+        });
+    });
 
     return { io };
 }

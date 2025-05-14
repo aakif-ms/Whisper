@@ -9,7 +9,8 @@ router.get('/getSentRequests', verifyUser, user.allSentRequests);
 
 router.post('/signup', user.userSignUp);
 router.post('/login', user.userLogin);
-router.post('/verifyUser', user.verifyUser);
+router.post('/logout', user.logoutUser);
+router.post('/verifyUser', verifyUser, user.verifyUser);
 router.post('/sendRequest', verifyUser, user.sendRequest);
 router.post('/choice', verifyUser, user.acceptRequest);
 router.post('/cancelRequest', verifyUser, user.cancelRequest);

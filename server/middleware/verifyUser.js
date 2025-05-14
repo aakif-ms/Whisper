@@ -2,18 +2,22 @@ const admin = require('../firebase/firebaseAdmin');
 
 module.exports.verifyUser = async (req, res, next) => {
     try {
-        const token = req.headers.authorization?.split('Bearer ')[1];
+        const token = req.cookies.token;
         if (!token) {
-            return res.status(401).json({ message: "No token provided" })
+            console.log("No token provided in cookies");
+            return res.status(401).json({ message: "No token provided" });
         }
+
         const verifiedToken = await admin.auth().verifyIdToken(token);
         if (verifiedToken) {
             req.user = verifiedToken;
             return next();
         } else {
-            return res.status(401).json({ message: "Invalid Session" })
+            console.log("User verification failed from middleware");
+            return res.status(401).json({ message: "Invalid Session" });
         }
     } catch (error) {
-        return res.status(401).json({ message: "Session Expired" })
+        console.error("Token verification error:", error.message);
+        return res.status(401).json({ message: "Session Expired" });
     }
 }

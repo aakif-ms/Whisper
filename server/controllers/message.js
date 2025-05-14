@@ -5,7 +5,6 @@ module.exports.getFriends = async (req, res) => {
     const { uid } = req.user;
     const user = await User.findOne({ uid });
     try {
-        console.log("sent all friends from backend");
         return res.json(user.friends);
     } catch (err) {
         console.log("Error fetching all friends", { err });
@@ -24,9 +23,7 @@ module.exports.sendMessage = async (req, res) => {
             receiverId: receiverId
         });
 
-        console.log(message);
-
-        // await message.save();
+        await message.save();
         res.status(201).json({ message });
     } catch (err) {
         res.status(500).json({ message: "Error Sending Message", err });
@@ -43,7 +40,7 @@ module.exports.retrieveChats = async (req, res) => {
                 { senderId: uid, receiverId: receiverId },
                 { senderId: receiverId, receiverId: uid },
             ]
-        });
+        }).sort({ createdAt: 1 });
 
         res.status(200).json(messages)
     } catch (err) {
