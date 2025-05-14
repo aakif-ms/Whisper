@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { getSentRequests, cancelRequest } from "../../../api/friend";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function SentRequest() {
     const [response, setResponse] = useState([]);
+    const { user } = useAuth();
 
     async function fetchRequests() {
-        const res = await getSentRequests();
+        const res = await getSentRequests(user.token);
         setResponse(res.data.sentRequest);
     }
 
@@ -14,7 +16,7 @@ export default function SentRequest() {
     }, []);
 
     async function handleChoice(email) {
-        const res = await cancelRequest(email, false);
+        const res = await cancelRequest(email, false, user.token);
         console.log(res);
         await fetchRequests();
     }

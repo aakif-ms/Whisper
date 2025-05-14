@@ -1,25 +1,36 @@
 import { io } from "socket.io-client";
 
-let socket;
+let socket = null;
 
 export function connectSocket(token) {
-    if (socket) return Promise.resolve(socket);
+    if (socket) {
+        socket.disconnect();
+        socket = null;
+    }
 
     return new Promise((resolve, reject) => {
+        if (!token) {
+            console.error("❌ No token provided to connectSocket()");
+            return reject("No token");
+        }
+
         socket = io("http://localhost:3000", {
-            auth: {
-                token: `Bearer ${token}`
-            },
+            withCredentials: true,
+            auth: { token },
         });
 
         socket.on("connect", () => {
-            console.log("Socket connected", socket.id);
+            console.log("✅ Socket connected:", socket.id);
             resolve(socket);
         });
 
         socket.on("connect_error", (err) => {
-            console.error("Socket connection error:", err.message);
+            console.error("❌ Socket connection error:", err.message);
             reject(err);
+        });
+
+        socket.on("disconnect", (reason) => {
+            console.log("🔌 Socket disconnected:", reason);
         });
     });
 }

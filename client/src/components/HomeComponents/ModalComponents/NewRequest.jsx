@@ -1,13 +1,16 @@
 import { useState } from "react";
+import { useAuth } from "../../../contexts/AuthContext.jsx";
 
 import { sendRequest } from "../../../api/friend.js";
 
 export default function NewRequest() {
     const [email, setEmail] = useState("");
+    const { user } = useAuth();
+
 
     async function handleSubmit(event) {
         event.preventDefault();
-        const response = await sendRequest(email);
+        const response = await sendRequest(email, user.token);
         setEmail("");
         console.log(response);
     }

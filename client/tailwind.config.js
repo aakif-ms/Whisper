@@ -12,7 +12,11 @@ export default {
       },
       colors: {
         lightPurple: '#8d96ee',
-        lightPink: '#fff7fe'
+        lightPink: '#fff7fe',
+        paleBlue: "#457b9d",
+        lightBlue: "#a8dadc",
+        cream: "#f1faee",
+        darkBlue: "#1d3557",
       },
     },
     screens: {

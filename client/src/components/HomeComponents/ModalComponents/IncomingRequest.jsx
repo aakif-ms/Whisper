@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { getIncomingRequests, acceptRequest } from "../../../api/friend";
+import { getIncomingRequests, acceptRequest, cancelRequest } from "../../../api/friend";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function IncomingRequest() {
     const [response, setResponse] = useState([]);
+    const { user } = useAuth();
 
     async function fetchRequests() {
-        const res = await getIncomingRequests();
+        const res = await getIncomingRequests(user.token);
         setResponse(res.data.friendRequests);
     }
 
@@ -14,8 +16,13 @@ export default function IncomingRequest() {
     }, []);
 
     async function handleChoice(email, choice) {
-        const res = await acceptRequest(email, choice);
-        console.log(res);
+        if (choice) {
+            const res = await acceptRequest(email, choice, user.token);
+            console.log(res);
+        } else {
+            const res = await cancelRequest(email, choice, user.token)
+            console.log(res);
+        }
         await fetchRequests();
     }
 

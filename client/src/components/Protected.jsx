@@ -1,42 +1,16 @@
-import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
 
 export default function Protected({ children }) {
-    const [isVerified, setIsVerified] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const { user, verifyUser } = useAuth();
+    const { user, loading } = useAuth();
 
-    useEffect(() => {
-        if (user === null) {
-            setLoading(false);
-            setIsVerified(false);
-            return;
-        }
+    if (loading) {
+        return <div>Loading...</div>; 
+    }
 
-        if (user === undefined) return;
-
-        async function verify() {
-            try {
-                const verified = await verifyUser();
-                if (String(verified.data.uid) === String(user.uid)) {
-                    setIsVerified(true);
-                } else {
-                    setIsVerified(false);
-                }
-            } catch (err) {
-                setIsVerified(false);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        verify();
-    }, [user]);
-
-    if (loading) return null;
-
-    if (!isVerified) return <Navigate to="/login" />;
+    if (user === null) {
+        return <Navigate to="/login" />;
+    }
 
     return children;
 }

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "http://localhost:3000/user" });
+const API = axios.create({ baseURL: "http://localhost:3000/user", withCredentials: true });
 
 export const loginUser = (token, password = undefined) => API.post("/login",
     { password },
@@ -20,11 +20,6 @@ export const register = (token, username = undefined, password = undefined) => A
     }
 );
 
-export const verify = (token) => API.post("/verifyUser",
-    {},
-    {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    }
-);
+export const logoutUser = () => API.post("/logout", {}, { withCredentials: true });
+
+export const verify = () => API.post("/verifyUser", {}, { withCredentials: true });

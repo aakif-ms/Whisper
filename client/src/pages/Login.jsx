@@ -13,7 +13,7 @@ export default function Login() {
         password: "",
     });
     const navigate = useNavigate();
-    const {user, login, loginWithGoogle } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
 
     async function handleGoogleLogin() {
         console.log("Google Login")

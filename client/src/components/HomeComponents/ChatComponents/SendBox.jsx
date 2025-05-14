@@ -15,12 +15,14 @@ export default function SendBox({ to }) {
         setMessage("");
         inputRef.current.value = "";
         const res = await sendMessage(message, to.uid);
+        console.log("from SendBox: ", to);
+        console.log("Message sent from send Box");
         console.log(res);
     }
 
 
     return (
-        <form className="flex justify-end px-3 py-2 gap-2" onSubmit={handleSubmit}>
+        <form className="flex justify-end px-3 py-2 gap-2 bg-cream" onSubmit={handleSubmit}>
             <input
                 type="text"
                 ref={inputRef}
