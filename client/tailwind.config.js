@@ -20,7 +20,7 @@ export default {
       },
     },
     screens: {
-      md: "850px",
+      md: "700px",
       lg: "1500px",
     },
   },

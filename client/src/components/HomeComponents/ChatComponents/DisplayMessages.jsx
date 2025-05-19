@@ -1,9 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMsg } from "../../../contexts/MessageContext.jsx";
 import { getSocket } from "../../../api/socket.js";
 
 export default function DisplayMessages({ to }) {
     const { messages, getMessages, setMessages } = useMsg();
+    const messagesEndRef = useRef(null);
+
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
 
     useEffect(() => {
         if (to?.uid) {
@@ -38,6 +45,7 @@ export default function DisplayMessages({ to }) {
                     </div>
                 </div>
             ))}
+            <div ref={messagesEndRef} />
         </div>
     );
 }

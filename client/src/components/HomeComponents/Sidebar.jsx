@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "../../contexts/AuthContext";
-
 import { getFriends } from "../../api/friend"
+
+import UserProfile from "./SideBarComponents/UserProfile";
+import UserCard from "./SideBarComponents/UserCard";
 
 export default function Sidebar({ handleModal, handleLogOut, setSelectedUser }) {
     const [response, setResponse] = useState([]);
@@ -9,7 +11,6 @@ export default function Sidebar({ handleModal, handleLogOut, setSelectedUser }) 
 
     async function fetchFriends() {
         const res = await getFriends(user.token);
-        console.log("From Sidebar ", res);
         setResponse(res.data);
     }
 
@@ -19,14 +20,11 @@ export default function Sidebar({ handleModal, handleLogOut, setSelectedUser }) 
 
 
     return (
-        <aside className="h-screen overflow-x-hidden w-20 lg:w-72 border-r-2 border-gray-700 bg-darkBlue flex flex-col items-center">
-            <button className="btn btn-error px-4 py-2 rounded-xl" onClick={handleModal}>Open Modal</button>
-            <button className="btn btn-success px-4 py-2 rounded-xl" onClick={handleLogOut}>Log Out</button>
+        <aside className="h-full overflow-x-hidden w-full lg:w-72 border-r-2 border-gray-700 bg-darkBlue flex flex-col items-center">
+            <UserProfile handleModal={handleModal} handleLogOut={handleLogOut} />
 
             {response.map((friend, index) => (
-                <div key={index} className="text-white mt-2 cursor-pointer" onClick={() => setSelectedUser(friend)}>
-                    {friend.name}
-                </div>
+                <UserCard index={index} setSelectedUser={setSelectedUser} friend={friend} />
             ))}
         </aside>
     )

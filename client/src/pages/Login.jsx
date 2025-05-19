@@ -37,22 +37,22 @@ export default function Login() {
     }
 
     return (
-        <div className="w-screen h-screen flex justify-center items-center lg:justify-start bg-white">
-            <div className="hidden lg:block lg:w-1/2 h-screen bg-indigo-600">
-                <DotLottieReact
-                    src="https://lottie.host/70081647-c250-44a9-b399-8d32d820194e/6L4iIS7X2I.lottie"
-                    loop
-                    autoplay
-                /></div>
+        <div className="w-screen min-h-screen flex flex-col lg:flex-row bg-white">
+            <div className="hidden lg:flex lg:w-1/2 h-screen bg-indigo-600 justify-center items-center">
+                <DotLottieReact src="https://lottie.host/70081647-c250-44a9-b399-8d32d820194e/6L4iIS7X2I.lottie" loop autoplay />
+            </div>
             <div className="lg:w-1/2 flex flex-col justify-center items-center">
-                <h1 className="text-4xl text-black font-poetsen">Login To Whisper</h1>
-                <form className="flex flex-col mt-12 gap-6" onSubmit={handleSubmit}>
+                <h1 className="text-4xl text-black font-poetsen">Join Whisper</h1>
+                <form className="flex flex-col mt-10 gap-6 w-full max-w-md" onSubmit={handleSubmit}>
                     <InputBox placeholder="Email" type="email" name="email" handleChange={handleChange} />
                     <InputBox placeholder="Password" type="password" name="password" handleChange={handleChange} />
                     <Button />
                 </form>
-                <GoogleLogin handleOnClick={handleGoogleLogin} />
+                <div className="mt-6 w-full max-w-md">
+                    <GoogleLogin handleOnClick={handleGoogleLogin} />
+                </div>
             </div>
         </div>
+
     )
 }

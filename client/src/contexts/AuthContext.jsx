@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  updateProfile
 } from "firebase/auth";
 
 import { register, loginUser, verify, logoutUser } from "../api/user.js";
@@ -21,15 +22,19 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkCookieSession = async () => {
       try {
-        const cookieSession = await verify();
-        if (cookieSession?.data?.uid) {
-          setUser({
-            uid: cookieSession.data.uid,
+        const session = await verify();
+        if (session?.data?.uid) {
+          const fullUser = {
+            uid: session.data.uid,
+            displayName: session.data.user?.name || "Guest",
+            email: session.data.user?.email || null,
             fromCookie: true
-          });
+          };
+          setUser(fullUser);
         }
       } catch (error) {
         console.error("Cookie session check failed:", error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -40,35 +45,19 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const token = await firebaseUser.getIdToken();
-
-        setUser({
+        const newUser = {
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           token,
-        });
-      } else {
-        try {
-          const cookieSession = await verify();
-          if (cookieSession?.data?.uid) {
-            setUser({
-              uid: cookieSession.data.uid,
-              fromCookie: true
-            });
-          } else {
-            setUser(null);
-          }
-        } catch (error) {
-          console.error("Secondary cookie check failed:", error);
-          setUser(null);
-        }
+        };
+        setUser(newUser);
+        await connectSocket(token);
       }
-      setLoading(false);
-    });
+    });;
 
     return () => unsubscribe();
   }, []);
-
 
   async function loginWithGoogle() {
     const provider = new GoogleAuthProvider();
@@ -76,36 +65,46 @@ export function AuthProvider({ children }) {
 
     const firebaseUser = result.user;
     const token = await firebaseUser.getIdToken();
-    await register(firebaseUser.displayName);
 
-    setUser({
+    await register(token, firebaseUser.displayName);
+
+    if (!firebaseUser.displayName) {
+      await updateProfile(firebaseUser, {
+        displayName: firebaseUser.displayName || "Guest"
+      });
+    }
+
+    const newUser = {
       uid: firebaseUser.uid,
       email: firebaseUser.email,
-      displayName: firebaseUser.displayName,
+      displayName: firebaseUser.displayName || "Guest",
       token,
-    });
+    };
 
+    setUser(newUser);
     await connectSocket(token);
   }
 
-  async function signup(username, email, password) {
-    console.log("Form Data before sending data to Firebase:", username, email, password);
 
+  async function signup(username, email, password) {
     try {
       const credentials = await createUserWithEmailAndPassword(auth, email, password);
       const token = await credentials.user.getIdToken();
-      console.log("Firebase token obtained:", token ? "Token received" : "No token");
 
-      const response = await register(token, username, password);
-      console.log("Backend registration response:", response.data);
+      await updateProfile(credentials.user, {
+        displayName: username
+      });
 
-      setUser({
+      await register(token, username, password);
+
+      const newUser = {
         uid: credentials.user.uid,
         email: credentials.user.email,
         displayName: username,
         token,
-      });
+      };
 
+      setUser(newUser);
       await connectSocket(token);
     } catch (error) {
       console.error("Signup error:", error);
@@ -118,33 +117,42 @@ export function AuthProvider({ children }) {
     try {
       const credentials = await signInWithEmailAndPassword(auth, email, password);
       const token = await credentials.user.getIdToken();
+
       const userData = await loginUser(token, password);
-      console.log("User logged in");
-      setUser({
+      const displayNameFromDB = userData.data.user.name;
+
+      if (!credentials.user.displayName) {
+        await updateProfile(credentials.user, {
+          displayName: displayNameFromDB
+        });
+      }
+
+      const newUser = {
         uid: credentials.user.uid,
         email: credentials.user.email,
-        displayName: userData?.username || credentials.user.displayName,
+        displayName: displayNameFromDB,
         token,
         ...userData,
-      });
-      console.log("Token being sent to socket:", !!token);
+      };
+
+      setUser(newUser);
       await connectSocket(token);
     } catch (error) {
       console.error("Login error:", error);
     }
   }
 
+
   async function verifyUser() {
     try {
       const verifiedData = await verify();
-      console.log("User Verification status: ", !!verifiedData);
+      console.log("From VerifyUser: ", verifiedData);
       return verifiedData;
     } catch (error) {
       console.error("User verification failed:", error);
       return null;
     }
   }
-
 
   async function logout() {
     console.log("logging out");

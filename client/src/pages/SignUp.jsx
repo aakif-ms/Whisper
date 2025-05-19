@@ -20,6 +20,7 @@ export default function SignUp() {
   async function handleGoogleLogin() {
     console.log("Google Login")
     await loginWithGoogle();
+    navigate("/home");
   }
 
   async function handleSubmit(event) {
@@ -38,22 +39,24 @@ export default function SignUp() {
   }
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center lg:justify-start">
-      <div className="hidden lg:block lg:w-1/2 h-screen bg-indigo-600">
+    <div className="w-screen min-h-screen flex flex-col lg:flex-row bg-white">
+      <div className="hidden lg:flex lg:w-1/2 h-screen bg-indigo-600 justify-center items-center">
         <DotLottieReact
           src="https://lottie.host/70081647-c250-44a9-b399-8d32d820194e/6L4iIS7X2I.lottie"
           loop
-          autoplay
-        /></div>
+          autoplay />
+      </div>
       <div className="lg:w-1/2 flex flex-col justify-center items-center">
-        <h1 className="text-4xl font-poetsen">Join Whisper</h1>
-        <form className="flex flex-col mt-12 gap-6" onSubmit={handleSubmit}>
+        <h1 className="text-4xl text-black font-poetsen">Join Whisper</h1>
+        <form className="flex flex-col mt-10 gap-6 w-full max-w-md" onSubmit={handleSubmit}>
           <InputBox placeholder="Username" type="text" name="name" handleChange={handleChange} />
           <InputBox placeholder="Email" type="email" name="email" handleChange={handleChange} />
           <InputBox placeholder="Password" type="password" name="password" handleChange={handleChange} />
           <Button />
         </form>
-        <GoogleLogin handleOnClick={handleGoogleLogin} />
+        <div className="mt-6 w-full max-w-md">
+          <GoogleLogin handleOnClick={handleGoogleLogin} />
+        </div>
       </div>
     </div>
   )

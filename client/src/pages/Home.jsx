@@ -21,14 +21,34 @@ export default function Home() {
         await logout();
         navigate("/login");
     }
-
     return (
         <>
-            <Modal open={open} onClose={() => setOpen(false)}></Modal>
-            <div className="flex items-center justify-center w-full h-screen">
-                <Sidebar handleLogOut={handleLogOut} handleModal={handleModal} setSelectedUser={setSelectedUser} />
-                {selectedUser ? <ChatWindow selectedUser={selectedUser} setSelectedUser={setSelectedUser}/> : <NoChatSelected/>}
+            <Modal open={open} onClose={() => setOpen(false)} />
+
+            <div className="flex w-full h-screen relative">
+                <div
+                    className={`absolute md:relative w-full md:w-72 h-full transition-transform duration-300 ${selectedUser ? 'translate-x-[-100%] md:translate-x-0' : 'translate-x-0'
+                        }`}
+                >
+                    <Sidebar
+                        handleLogOut={handleLogOut}
+                        handleModal={handleModal}
+                        setSelectedUser={setSelectedUser}
+                    />
+                </div>
+
+                <div
+                    className={`flex-1 h-full w-full transition-transform duration-300 ${selectedUser ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
+                        }`}
+                >
+                    {selectedUser ? (
+                        <ChatWindow selectedUser={selectedUser} setSelectedUser={setSelectedUser} />
+                    ) : (
+                        <NoChatSelected />
+                    )}
+                </div>
             </div>
         </>
-    )
+    );
+
 }
