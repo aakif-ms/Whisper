@@ -33,7 +33,6 @@ export function AuthProvider({ children }) {
           setUser(fullUser);
         }
       } catch (error) {
-        console.error("Cookie session check failed:", error);
         setUser(null);
       } finally {
         setLoading(false);
@@ -107,7 +106,6 @@ export function AuthProvider({ children }) {
       setUser(newUser);
       await connectSocket(token);
     } catch (error) {
-      console.error("Signup error:", error);
       throw error;
     }
   }
@@ -138,7 +136,6 @@ export function AuthProvider({ children }) {
       setUser(newUser);
       await connectSocket(token);
     } catch (error) {
-      console.error("Login error:", error);
     }
   }
 
@@ -146,10 +143,8 @@ export function AuthProvider({ children }) {
   async function verifyUser() {
     try {
       const verifiedData = await verify();
-      console.log("From VerifyUser: ", verifiedData);
       return verifiedData;
     } catch (error) {
-      console.error("User verification failed:", error);
       return null;
     }
   }
@@ -157,7 +152,6 @@ export function AuthProvider({ children }) {
   async function logout() {
     console.log("logging out");
     const res = await logoutUser();
-    console.log(res);
     await signOut(auth);
     setUser(null);
   }

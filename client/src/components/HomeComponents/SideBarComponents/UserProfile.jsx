@@ -5,7 +5,6 @@ import { useAuth } from '../../../contexts/AuthContext';
 export default function UserProfile({ handleModal, handleLogOut }) {
     const [displayName, setDisplayName] = useState("");
     const { user } = useAuth();
-    console.log("From UserProfile: ", user);
     useEffect(() => {
         if (user) {
             setDisplayName(user.displayName);

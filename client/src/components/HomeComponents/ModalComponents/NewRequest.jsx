@@ -12,7 +12,6 @@ export default function NewRequest() {
         event.preventDefault();
         const response = await sendRequest(email, user.token);
         setEmail("");
-        console.log(response);
     }
 
     function handleInput(event) {

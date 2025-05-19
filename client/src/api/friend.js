@@ -13,7 +13,7 @@ export const sendRequest = async (email, token) => {
         const response = await userApi.post("/sendRequest", { email }, );
         return response;
     } catch (error) {
-        console.error("Error sending friend request:", error.response?.data || error.message);
+        console.log("Error sending friend request:", error.response?.data || error.message);
     }
 };
 

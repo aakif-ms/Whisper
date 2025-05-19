@@ -15,9 +15,6 @@ export default function SendBox({ to }) {
         setMessage("");
         inputRef.current.value = "";
         const res = await sendMessage(message, to.uid);
-        console.log("from SendBox: ", to);
-        console.log("Message sent from send Box");
-        console.log(res);
     }
 
 

@@ -16,14 +16,12 @@ export default function Login() {
     const { login, loginWithGoogle } = useAuth();
 
     async function handleGoogleLogin() {
-        console.log("Google Login")
         await loginWithGoogle();
         navigate("/home");
     }
 
     async function handleSubmit(event) {
         event.preventDefault();
-        console.log("Form Data before submitting", formData);
         await login(formData.email, formData.password);
         navigate("/home");
     }

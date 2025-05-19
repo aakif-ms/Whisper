@@ -18,10 +18,8 @@ export default function IncomingRequest() {
     async function handleChoice(email, choice) {
         if (choice) {
             const res = await acceptRequest(email, choice, user.token);
-            console.log(res);
         } else {
             const res = await cancelRequest(email, choice, user.token)
-            console.log(res);
         }
         await fetchRequests();
     }

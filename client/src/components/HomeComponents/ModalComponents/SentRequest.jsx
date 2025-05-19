@@ -17,7 +17,6 @@ export default function SentRequest() {
 
     async function handleChoice(email) {
         const res = await cancelRequest(email, false, user.token);
-        console.log(res);
         await fetchRequests();
     }
 

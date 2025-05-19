@@ -18,14 +18,12 @@ export default function SignUp() {
   const navigate = useNavigate();
 
   async function handleGoogleLogin() {
-    console.log("Google Login")
     await loginWithGoogle();
     navigate("/home");
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
-    console.log("Form Data before submitting", formData);
     await signup(formData.name, formData.email, formData.password);
     navigate("/home");
   }

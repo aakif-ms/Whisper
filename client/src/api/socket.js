@@ -20,7 +20,6 @@ export function connectSocket(token) {
         });
 
         socket.on("connect", () => {
-            console.log("✅ Socket connected:", socket.id);
             resolve(socket);
         });
 
