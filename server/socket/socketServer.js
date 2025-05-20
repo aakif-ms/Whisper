@@ -19,7 +19,6 @@ function configureSocket(httpServer) {
             const token = socket.handshake.auth?.token;
 
             if (!token || token === 'undefined') {
-                console.log("❌ No token provided in socket handshake auth");
                 return next(new Error("Authentication failed"));
             }
 
@@ -27,15 +26,12 @@ function configureSocket(httpServer) {
                 const decoded = await admin.auth().verifyIdToken(token);
                 uidMap.set(decoded.uid, socket.id);
                 socket.uid = decoded.uid;
-                console.log("✅ Socket authenticated for UID:", decoded.uid);
                 next();
             } catch (err) {
-                console.error("❌ Token verification failed:", err.message);
                 next(new Error("Authentication failed"));
             }
 
         } catch (err) {
-            console.error("❌ Unexpected error in socket auth middleware:", err.message);
             next(new Error("Authentication failed"));
         }
     });
@@ -43,7 +39,6 @@ function configureSocket(httpServer) {
 
 
     io.on("connection", (socket) => {
-        console.log("Current UID map:", uidMap);
 
         socket.on("sendMessage", async ({ content, to }) => {
             const senderUid = socket.uid;
@@ -67,13 +62,11 @@ function configureSocket(httpServer) {
 
                 socket.emit("newMessage", message);
             } catch (err) {
-                console.log("Error sending message via socket:", err);
                 socket.emit("error", { message: "Message not sent due to error" });
             }
         });
 
         socket.on("disconnect", () => {
-            console.log(`User disconnected: ${socket.id}`);
             if (socket.uid) {
                 uidMap.delete(socket.uid);
             }

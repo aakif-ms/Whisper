@@ -17,7 +17,6 @@ module.exports.userSignUp = async (req, res) => {
         try {
             decoded = await admin.auth().verifyIdToken(token);
         } catch (err) {
-            console.error("Token verification failed:", err.message);
             return res.status(401).json({ message: "Invalid token" });
         }
 
@@ -64,7 +63,6 @@ module.exports.userSignUp = async (req, res) => {
             }
         });
     } catch (err) {
-        console.error("Signup error:", err.message);
         return res.status(500).json({ message: "Server Error" });
     }
 };
@@ -73,7 +71,6 @@ module.exports.userSignUp = async (req, res) => {
 module.exports.userLogin = async (req, res) => {
     try {
         const token = req.headers.authorization?.split('Bearer ')[1];
-        console.log("Received token in login controller: ", !!token);
 
         if (!token) {
             return res.status(401).json({ message: "Token not provided" });
@@ -119,7 +116,6 @@ module.exports.userLogin = async (req, res) => {
             message: "User logged in successfully"
         });
     } catch (error) {
-        console.error("Login error:", error.message);
         return res.status(500).json({ message: "Server Error" });
     }
 };
@@ -132,13 +128,19 @@ module.exports.logoutUser = async (req, res) => {
         path: "/"
     });
     console.log("Logged out user");
-    res.json({message: "User logged out successfully"});
+    res.json({ message: "User logged out successfully" });
 }
 
 module.exports.verifyUser = async (req, res) => {
+    const { email } = req.user;
+    const user = await User.findOne({ email });
     const userData = {
-        uid: req.user.uid,
-        email: req.user.email
+        uid: user.uid,
+        email: user.email,
+        user: {
+            name: user.name,
+            email: user.email
+        }
     };
 
     res.json(userData);

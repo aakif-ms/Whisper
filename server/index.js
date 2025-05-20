@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const http = require("http");
 const express = require("express");
 const mongoose = require("mongoose");
@@ -11,7 +13,7 @@ const { setSocketServer } = require("./socket/socketState.js")
 main().catch((err) => console.log(err));
 
 async function main() {
-    await mongoose.connect("mongodb://127.0.0.1:27017/whisper");
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
 }
 
