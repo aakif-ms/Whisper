@@ -49,6 +49,7 @@ export default function Login() {
                 <div className="mt-6 w-full max-w-md">
                     <GoogleLogin handleOnClick={handleGoogleLogin} />
                 </div>
+                <h1 className='text-black mt-5 font-national'>Don't have an account: <span className='font-bold cursor-pointer' onClick={() => navigate("/signUp")}>Create One</span></h1>
             </div>
         </div>
 

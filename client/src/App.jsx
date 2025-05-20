@@ -7,6 +7,10 @@ import Protected from './components/Protected.jsx';
 
 const router = createBrowserRouter([
   {
+    path: "/",
+    element: <Login />
+  },
+  {
     path: "/signup",
     element: <SignUp />
   },

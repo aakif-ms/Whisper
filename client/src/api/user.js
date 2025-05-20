@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "http://localhost:3000/user", withCredentials: true });
+const API = axios.create({ baseURL: "https://whisper-th8j.onrender.com/user", withCredentials: true });
 
 export const loginUser = (token, password = undefined) => API.post("/login",
     { password },

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const userApi = axios.create({ baseURL: "http://localhost:3000/user", withCredentials: true, });
-const friendApi = axios.create({ baseURL: "http://localhost:3000/chat", withCredentials: true });
+const userApi = axios.create({ baseURL: "https://whisper-th8j.onrender.com/user", withCredentials: true, });
+const friendApi = axios.create({ baseURL: "https://whisper-th8j.onrender.com/chat", withCredentials: true });
 
 export const sendRequest = async (email, token) => {
     if (!token) {
@@ -10,7 +10,7 @@ export const sendRequest = async (email, token) => {
     }
 
     try {
-        const response = await userApi.post("/sendRequest", { email }, );
+        const response = await userApi.post("/sendRequest", { email },);
         return response;
     } catch (error) {
         console.log("Error sending friend request:", error.response?.data || error.message);
@@ -37,7 +37,7 @@ export const getSentRequests = async () => {
 
 export const acceptRequest = async (email, choice) => {
     try {
-        const response = await userApi.post("/choice", { email, choice }, );
+        const response = await userApi.post("/choice", { email, choice },);
 
         return response;
     } catch (err) {
@@ -47,7 +47,7 @@ export const acceptRequest = async (email, choice) => {
 
 export const cancelRequest = async (email, choice) => {
     try {
-        const response = await userApi.post("/cancelRequest", { email, choice }, );
+        const response = await userApi.post("/cancelRequest", { email, choice },);
 
         return response;
     } catch (err) {
