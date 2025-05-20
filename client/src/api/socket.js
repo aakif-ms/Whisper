@@ -13,7 +13,7 @@ export function connectSocket(token) {
             return reject("No token");
         }
 
-        socket = io("http://localhost:3000", {
+        socket = io("https://whisper-th8j.onrender.com", {
             withCredentials: true,
             auth: { token },
         });

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { connectSocket, getSocket } from '../api/socket';
 import { useAuth } from './AuthContext';
 
-const API = axios.create({ baseURL: "http://localhost:3000/chat", withCredentials: true });
+const API = axios.create({ baseURL: "https://whisper-th8j.onrender.com/chat", withCredentials: true });
 
 const MessageContext = createContext();
 
