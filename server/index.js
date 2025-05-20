@@ -22,7 +22,7 @@ app.use(cookies());
 app.use(express.json());
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: "https://whisper1.netlify.app",
         credentials: true,
     })
 )

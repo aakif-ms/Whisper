@@ -7,7 +7,7 @@ const uidMap = getUidMap();
 function configureSocket(httpServer) {
     const io = new Server(httpServer, {
         cors: {
-            origin: "http://localhost:5173",
+            origin: "https://whisper1.netlify.app",
             credentials: true,
         }
     });
