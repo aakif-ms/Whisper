@@ -10,7 +10,6 @@ export function connectSocket(token) {
 
     return new Promise((resolve, reject) => {
         if (!token) {
-            console.error("❌ No token provided to connectSocket()");
             return reject("No token");
         }
 
@@ -24,7 +23,6 @@ export function connectSocket(token) {
         });
 
         socket.on("connect_error", (err) => {
-            console.error("❌ Socket connection error:", err.message);
             reject(err);
         });
 

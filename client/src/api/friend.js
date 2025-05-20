@@ -17,7 +17,7 @@ export const sendRequest = async (email, token) => {
     }
 };
 
-export const getIncomingRequests = async (token) => {
+export const getIncomingRequests = async () => {
     try {
         const response = await userApi.get("/getIncomingRequests");
         return response;
@@ -26,7 +26,7 @@ export const getIncomingRequests = async (token) => {
     }
 }
 
-export const getSentRequests = async (token) => {
+export const getSentRequests = async () => {
     try {
         const response = await userApi.get("/getSentRequests");
         return response;
@@ -35,7 +35,7 @@ export const getSentRequests = async (token) => {
     }
 }
 
-export const acceptRequest = async (email, choice, token) => {
+export const acceptRequest = async (email, choice) => {
     try {
         const response = await userApi.post("/choice", { email, choice }, );
 
@@ -45,7 +45,7 @@ export const acceptRequest = async (email, choice, token) => {
     }
 }
 
-export const cancelRequest = async (email, choice, token) => {
+export const cancelRequest = async (email, choice) => {
     try {
         const response = await userApi.post("/cancelRequest", { email, choice }, );
 
@@ -55,7 +55,7 @@ export const cancelRequest = async (email, choice, token) => {
     }
 }
 
-export const getFriends = async (token) => {
+export const getFriends = async () => {
     try {
         const response = await friendApi.get("/getFriends")
         return response;
