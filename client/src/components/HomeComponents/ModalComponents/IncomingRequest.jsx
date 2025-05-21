@@ -17,33 +17,30 @@ export default function IncomingRequest() {
 
     async function handleChoice(email, choice) {
         if (choice) {
-            const res = await acceptRequest(email, choice, user.token);
+            await acceptRequest(email, choice, user.token);
         } else {
-            const res = await cancelRequest(email, choice, user.token)
+            await cancelRequest(email, choice, user.token);
         }
         await fetchRequests();
     }
 
     return (
-        <>
-            <div className="flex flex-col gap-5">
-                {response.map((user, index) => (
-                    <div key={index} className="flex w-full justify-between items-center">
-                        <div className="flex">
-                            <p className="pr-1 font-semibold font-national text-lg">{index + 1}.</p>
-                            <div>
-                                <h1 className="text-black font-national text-lg">{user.name}</h1>
-                                <h3 className="text-gray-500 font-national text-md">{user.email}</h3>
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <h1 className="text-xl cursor-pointer" onClick={() => handleChoice(user.email, true)}>✅</h1>
-                            <h1 className="text-xl cursor-pointer" onClick={() => handleChoice(user.email, false)}>❌</h1>
+        <div className="flex flex-col gap-3">
+            {response.map((user, index) => (
+                <div key={index} className="flex justify-between items-center text-sm md:text-base">
+                    <div className="flex gap-2">
+                        <p className="font-semibold">{index + 1}.</p>
+                        <div>
+                            <p className="font-semibold text-black">{user.name}</p>
+                            <p className="text-gray-500">{user.email}</p>
                         </div>
                     </div>
-                ))}
-            </div>
-
-        </>
+                    <div className="flex gap-2 text-xl">
+                        <span className="cursor-pointer" onClick={() => handleChoice(user.email, true)}>✅</span>
+                        <span className="cursor-pointer" onClick={() => handleChoice(user.email, false)}>❌</span>
+                    </div>
+                </div>
+            ))}
+        </div>
     );
 }
